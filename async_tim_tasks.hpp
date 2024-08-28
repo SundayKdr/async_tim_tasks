@@ -48,6 +48,7 @@ namespace async_tim_task{
 #define $RemoveAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().RemoveFromPool(n)
 #define $StopAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().StopTask(n)
 #define $ResumeAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().ResumeTask(n)
+#define $RestartAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().RestartTask(n)
 
 
 #define $get_override(arg1, arg2, arg3, ...) arg3

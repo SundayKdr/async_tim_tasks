@@ -17,9 +17,9 @@ public:
     AsyncTask() = default;
 
     explicit AsyncTask(CallBackT&& cb, std::size_t delay, bool suspended = false)
-        : handler_(cb)
-        , interval_(delay)
+        : interval_(delay)
         , inited_(true)
+        , handler_(cb)
     {
         if(!suspended)
             Enable();
@@ -44,6 +44,11 @@ public:
         disabled_ = false;
     }
 
+    void Restart(){
+        count_ = 0;
+        Enable();
+    }
+
     void Disable(){
         disabled_ = true;
     }
@@ -55,6 +60,7 @@ public:
     void Reset(){
         disabled_ = true;
         inited_ = true;
+        count_ = 0;
     }
 private:
     std::size_t count_{0};

@@ -63,6 +63,13 @@ struct TaskPool{
         return true;
     }
 
+    bool RestartTask(unsigned short idx){
+        if(idx >= k_pool_size)
+            return false;
+        pool_[idx].Restart();
+        return true;
+    }
+
     [[gnu::always_inline]] void OnTimTick(){
         for(std::size_t i = 0; i < current_pool_size_; i++)
             pool_[i].TickHandle();
