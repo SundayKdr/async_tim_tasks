@@ -37,31 +37,34 @@
 
 namespace async_tim_task{
 
-#define $AsyncTasksPoolSetUp(converter, starter) async_tim_task_impl::TaskPool::GetPool().SetUp(converter, starter)
-#define $AsyncTasksOnTim async_tim_task_impl::TaskPool::GetPool().OnTimTick();
-#define $AsyncTasksPoll async_tim_task_impl::TaskPool::GetPool().Poll();
+constexpr std::size_t k_pool_size = 30;
+using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
+
+#define $AsyncTasksPoolSetUp(converter, starter) async_tim_task::TaskPool::GetPool().SetUp(converter, starter)
+#define $AsyncTasksOnTim async_tim_task::TaskPool::GetPool().OnTimTick();
+#define $AsyncTasksPoll async_tim_task::TaskPool::GetPool().Poll();
 
 #define $RunAsync(...) $RunAsyncMacroChooser(__VA_ARGS__)(__VA_ARGS__)
 #define $RunAsyncStatic(...) $RunAsyncStaticMacroChooser(__VA_ARGS__)(__VA_ARGS__)
 #define $RegAsyncSuspended(...) $RegAsyncMacroChooser(__VA_ARGS__)(__VA_ARGS__)
 
-#define $RemoveAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().RemoveFromPool(n)
-#define $StopAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().StopTask(n)
-#define $ResumeAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().ResumeTask(n)
-#define $RestartAsyncTask(n) async_tim_task_impl::TaskPool::GetPool().RestartTask(n)
+#define $RemoveAsyncTask(n) async_tim_task::TaskPool::GetPool().RemoveFromPool(n)
+#define $StopAsyncTask(n) async_tim_task::TaskPool::GetPool().StopTask(n)
+#define $ResumeAsyncTask(n) async_tim_task::TaskPool::GetPool().ResumeTask(n)
+#define $RestartAsyncTask(n) async_tim_task::TaskPool::GetPool().RestartTask(n)
 
 
 #define $get_override(arg1, arg2, arg3, ...) arg3
 
 #define $RunAsyncMacroChooser(...) $get_override(__VA_ARGS__, $RunAsync_hz, $RunAsync_quickest)
 #define $RunAsync_quickest(expr) \
-    async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
+    async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
             expr;                                                                                                   \
         }                                                                                                           \
     ))
 #define $RunAsync_hz(expr, Hz)  \
-    async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
+    async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
             expr;                                                                                                   \
         }                                                                                                           \
@@ -69,20 +72,20 @@ namespace async_tim_task{
 
 #define $RunAsyncStaticMacroChooser(...) $get_override(__VA_ARGS__, $RunAsync_static_hz, $RunAsyncStatic_quickest)
 #define $RunAsync_static_hz(expr, Hz)  \
-        async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr), Hz)
+        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr), Hz)
 #define $RunAsyncStatic_quickest(expr)  \
-        async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr))
+        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr))
 
 #define $RegAsyncMacroChooser(...) $get_override(__VA_ARGS__, $RegAsyncTask_suspended, $RegAsyncInitial_suspended_quickest)
 #define $RegAsyncTask_suspended(expr, Hz)  \
-    async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
+    async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
             expr;                                                                                                   \
         }                                                                                                           \
     ), Hz, true)
 
 #define $RegAsyncInitial_suspended_quickest(expr)  \
-    async_tim_task_impl::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
+    async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
             expr;                                                                                                   \
         }                                                                                                           \
