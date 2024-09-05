@@ -4,11 +4,11 @@
 #include <functional>
 #include <span>
 
-#include "embedded_hw_utils/utils/task_callback.hpp"
+#include "call_back.hpp"
 
 namespace async_tim_task_impl{
 
-using CallBackT = utils::task::CallBack<>;
+using CallBackT = CallBack<>;
 
 constexpr std::size_t kTick_freq_ = 1;
 
@@ -71,7 +71,7 @@ private:
     std::size_t interval_{0};
     bool inited_ {false};
     bool disabled_ {true};
-    CallBackT handler_;
+    CallBackT handler_ {};
 };
 
 }// namespace async_tim_task
