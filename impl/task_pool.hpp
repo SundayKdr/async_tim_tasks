@@ -68,6 +68,12 @@ struct TaskPool{
         return true;
     }
 
+    void ResetInterval(unsigned short idx, float Hz){
+        if(idx >= pool_size)
+            return;
+        pool_[idx].ResetInterval(converter_(Hz));
+    }
+
     [[gnu::always_inline]] void OnTimTick(){
         for(std::size_t i = 0; i < current_pool_size_; i++)
             pool_[i].TickHandle();

@@ -52,7 +52,7 @@ using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
 #define $StopAsyncTask(n) async_tim_task::TaskPool::GetPool().StopTask(n)
 #define $ResumeAsyncTask(n) async_tim_task::TaskPool::GetPool().ResumeTask(n)
 #define $RestartAsyncTask(n) async_tim_task::TaskPool::GetPool().RestartTask(n)
-
+#define $ResetAsyncTaskIntervalHz(task_n, hz) async_tim_task::TaskPool::GetPool().ResetInterval(task_n, hz)
 
 #define $get_override(arg1, arg2, arg3, ...) arg3
 

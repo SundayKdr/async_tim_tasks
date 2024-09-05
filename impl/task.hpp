@@ -49,6 +49,10 @@ public:
         Enable();
     }
 
+    void ResetInterval(std::size_t delay){
+        interval_ = delay;
+    }
+
     void Disable(){
         disabled_ = true;
     }
