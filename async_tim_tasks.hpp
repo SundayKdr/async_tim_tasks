@@ -12,13 +12,13 @@
            )
       to place a task:
             $RunAsync(
-                1st @param expression -> expression in braces. use @var self for context {self->...}
+                1st @param expression -> expression in braces. use @var self for context self->...
                 2nd @param float -> time in Hz for this task to repeat
             )
             @retval task N in pool(std::size_t)
 
             to put max frequently task $RunAsync(
-                1st @param expression -> expression in braces. @var self for context {self->...}
+                1st @param expression -> expression in braces. @var self for context self->...
             )
             @retval task N in pool(std::size_t)
 
@@ -36,6 +36,14 @@
 */
 
 namespace async_tim_task{
+
+//    template<typename F>
+//    auto RunAsync(F callback, float hz) {
+//        return async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(new F(std::move(callback)), [](void* context){
+//            auto self = static_cast<F*>(context);
+//            std::move(*self)();
+//        }), hz);
+//    }
 
 constexpr std::size_t k_pool_size = 30;
 using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
@@ -60,34 +68,37 @@ using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
 #define $RunAsync_quickest(expr) \
     async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
-            expr;                                                                                                   \
+            self->expr;                                                                                             \
         }                                                                                                           \
     ))
 #define $RunAsync_hz(expr, Hz)  \
     async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
-            expr;                                                                                                   \
+            self->expr;                                                                                             \
         }                                                                                                           \
     ), Hz)
 
-#define $RunAsyncStaticMacroChooser(...) $get_override(__VA_ARGS__, $RunAsync_static_hz, $RunAsyncStatic_quickest)
+#define $RunAsyncStaticMacroChooser(...) \
+        $get_override(__VA_ARGS__, $RunAsync_static_hz, $RunAsyncStatic_quickest)
 #define $RunAsync_static_hz(expr, Hz)  \
-        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr), Hz)
+        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context){expr;}), Hz)
 #define $RunAsyncStatic_quickest(expr)  \
-        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context)expr))
+        async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT([](void* context){expr;}))
 
-#define $RegAsyncMacroChooser(...) $get_override(__VA_ARGS__, $RegAsyncTask_suspended, $RegAsyncInitial_suspended_quickest)
+#define $RegAsyncMacroChooser(...) \
+                             $get_override(__VA_ARGS__, $RegAsyncTask_suspended, $RegAsyncInitial_suspended_quickest)
+
 #define $RegAsyncTask_suspended(expr, Hz)  \
     async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
-            expr;                                                                                                   \
+            self->expr;                                                                                             \
         }                                                                                                           \
     ), Hz, true)
 
 #define $RegAsyncInitial_suspended_quickest(expr)  \
     async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(this, [](void* context){    \
             auto self = static_cast<decltype(this)>(context);                                                       \
-            expr;                                                                                                   \
+            self->expr;                                                                                             \
         }                                                                                                           \
     ), true)
 
