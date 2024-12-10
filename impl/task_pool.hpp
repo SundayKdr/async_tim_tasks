@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <limits>
 
 #include "async_tim_tasks/impl/task.hpp"
 
@@ -25,7 +26,7 @@ struct TaskPool{
         starter();
     }
 
-    constexpr int PlaceToPool(CallBackT&& cb, float Hz = UINT32_MAX, bool suspended = false){
+    constexpr int PlaceToPool(CallBackT&& cb, float Hz = std::numeric_limits<float>::max(), bool suspended = false){
         assert(converter_ != nullptr);
         int idx = -1;
         for(std::size_t i = 0; i < pool_size; i++){
@@ -40,38 +41,41 @@ struct TaskPool{
     }
 
     bool RemoveFromPool(unsigned short idx){
-        if(idx >= pool_size)
-            return false;
-        pool_[idx].Reset();
-        current_pool_size_--;
-        return true;
+        if(idx < current_pool_size_){
+            pool_[idx].Reset();
+            current_pool_size_--;
+            return true;
+        }
+        return false;
     }
 
     bool StopTask(unsigned short idx){
-        if(idx >= pool_size)
-            return false;
-        pool_[idx].Disable();
-        return true;
+        if(idx < current_pool_size_){
+            pool_[idx].Disable();
+            return true;
+        }
+        return false;
     }
 
     bool ResumeTask(unsigned short idx){
-        if(idx >= pool_size)
-            return false;
-        pool_[idx].Enable();
-        return true;
+        if(idx < current_pool_size_){
+            pool_[idx].Enable();
+            return true;
+        }
+        return false;
     }
 
     bool RestartTask(unsigned short idx){
-        if(idx >= pool_size)
-            return false;
-        pool_[idx].Restart();
-        return true;
+        if(idx < current_pool_size_){
+            pool_[idx].Restart();
+            return true;
+        }
+        return false;
     }
 
     void ResetInterval(unsigned short idx, float Hz){
-        if(idx >= pool_size)
-            return;
-        pool_[idx].ResetInterval(converter_(Hz));
+        if(idx < current_pool_size_)
+            pool_[idx].ResetInterval(converter_(Hz));
     }
 
     [[gnu::always_inline]] void OnTimTick(){
