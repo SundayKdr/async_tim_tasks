@@ -65,6 +65,13 @@ struct TaskPool{
         return false;
     }
 
+    bool ResetTask(unsigned short idx){
+        if(idx >= pool_size)
+            return false;
+        pool_[idx].Reset();
+        return true;
+    }
+
     bool RestartTask(unsigned short idx){
         if(idx < current_pool_size_){
             pool_[idx].Restart();

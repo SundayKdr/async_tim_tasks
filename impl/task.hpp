@@ -26,7 +26,8 @@ public:
     }
 
     [[gnu::always_inline]] void TickHandle(){
-        count_ += kTick_freq_;
+        if(!disabled_)
+            count_ += kTick_freq_;
     }
 
     [[gnu::always_inline]] void Poll(){
