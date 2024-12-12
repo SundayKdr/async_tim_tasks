@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <limits>
 
 #include "async_tim_tasks/impl/task.hpp"

@@ -2,50 +2,10 @@
 
 #include "async_tim_tasks/impl/task_pool.hpp"
 
-/**
-    * @brief to use:
-       $AsyncTasksOnTim place in interrupt handler for desired timer
-       $AsyncTasksPoll place im main loop
-       place macro $AsyncTasksPoolSetUp(
-               1st @param lambda -> converting Hz to delay [](float arg)->uint32_t {... return delay;}
-               2nd @param lambda -> starting []->void { StartTim(tim); }
-           )
-      to place a task:
-            $RunAsync(
-                1st @param expression -> expression in braces. use @var self for context self->...
-                2nd @param float -> time in Hz for this task to repeat
-            )
-            @retval task N in pool(std::size_t)
-
-            to put max frequently task $RunAsync(
-                1st @param expression -> expression in braces. @var self for context self->...
-            )
-            @retval task N in pool(std::size_t)
-
-      to stop a task:
-      use macro $StopAsyncTask(
-            @param taskN -> which was a retval for PLACE_ASYNC_TASK_...
-          )
-
-      to resume a task:
-      use macro $ResumeAsyncTask(
-            @param taskN -> which was a retval for PLACE_ASYNC_TASK_...
-          )
-
-      @param pool_size - default to 30 in impl/task_pool.hpp
-*/
-
 namespace async_tim_task{
 
-//    template<typename F>
-//    auto RunAsync(F callback, float hz) {
-//        return async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(new F(std::move(callback)), [](void* context){
-//            auto self = static_cast<F*>(context);
-//            std::move(*self)();
-//        }), hz);
-//    }
-
 constexpr std::size_t k_pool_size = 30;
+
 using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
 
 #define $AsyncTasksPoolSetUp(converter, starter) async_tim_task::TaskPool::GetPool().SetUp(converter, starter)
@@ -102,5 +62,13 @@ using TaskPool = async_tim_task_impl::TaskPool<k_pool_size>;
             self->expr;                                                                                             \
         }                                                                                                           \
     ), true)
+
+//    template<typename F>
+//    auto RunAsync(F callback, float hz) {
+//        return async_tim_task::TaskPool::GetPool().PlaceToPool(async_tim_task_impl::CallBackT(new F(std::move(callback)), [](void* context){
+//            auto self = static_cast<F*>(context);
+//            std::move(*self)();
+//        }), hz);
+//    }
 
 }// namespace async_tim_task
